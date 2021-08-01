@@ -12,10 +12,41 @@
     <script>
       var response = document.getElementById("response");
       var syncBtn = document.getElementById("syncBtn");
-      syncBtn.addEventListener("click", function () {});
+      syncBtn.addEventListener("click", function () {
+        // 同步的測試
+        response.innerHTML = "開始同步請求";
+
+        var xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+          if (this.status === 200) {
+            response.innerHTML = `同步請求的response: ${this.responseText}`;
+          } else {
+            response.innerHTML = `同步請求錯誤: ${this.status}`;
+          }
+        };
+
+        // methed, url, async(default: true 非同步)
+        xhr.open("GET", "http://18.237.113.31:3000/", false);
+        xhr.send();
+      });
 
       var asyncBtn = document.getElementById("asyncBtn");
-      asyncBtn.addEventListener("click", function () {});
+      asyncBtn.addEventListener("click", function () {
+        response.innerHTML = "開始非同步請求";
+
+        var xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+          if (this.status === 200) {
+            response.innerHTML = `非同步請求的response: ${this.responseText}`;
+          } else {
+            response.innerHTML = `非同步請求錯誤: ${this.status}`;
+          }
+        };
+
+        // methed, url, async(default: true 非同步)
+        xhr.open("GET", "http://18.237.113.31:3000/", true);
+        xhr.send();
+      });
 
       var countBtn = document.getElementById("countBtn");
       var count = document.getElementById("count");
