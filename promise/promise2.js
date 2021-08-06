@@ -25,6 +25,8 @@ console.log(`開始工作 at ${dt.toISOString()}`);
 // ---> 動作如果要接續著做，只能把下一個動作放在上一個動作的 callback
 //   --> callback hell
 
+// 沒有達成接續做這個要求
+
 let job1 = doWork("刷牙", 3000, true);
 job1.then(
   (result) => {

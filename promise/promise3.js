@@ -41,6 +41,7 @@ job1
     console.log("第 2 個函式被呼叫了", error);
   })
   .finally(() => {
+    // 無論成功或失敗都會在這裡
     console.log("finally");
   });
 
@@ -61,23 +62,3 @@ job1
 // 負責捕捉失敗
 // 也會回傳 promise
 // Promise.catch;
-
-// let job2 = doWork("吃早餐", 5000, true);
-// job2.then(
-//   (result) => {
-//     console.log("第 1 個函式被呼叫了", result);
-//   },
-//   (error) => {
-//     console.log("第 2 個函式被呼叫了", error);
-//   }
-// );
-
-// let job3 = doWork("寫功課", 3000, true);
-// job3.then(
-//   (result) => {
-//     console.log("第 1 個函式被呼叫了", result);
-//   },
-//   (error) => {
-//     console.log("第 2 個函式被呼叫了", error);
-//   }
-// );
