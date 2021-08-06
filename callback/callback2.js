@@ -26,6 +26,8 @@ function homework() {
   });
 }
 
+// pipeline pattern
+// 資料分析/資料科學家
 function eat() {
   doWork("吃早餐", 5000, function (err, data) {
     // 在這裡，就是已經吃完早餐了！
@@ -38,6 +40,7 @@ function eat() {
   });
 }
 
+// 職責切割
 doWork("刷牙", 3000, function (err, data) {
   // 刷完牙後會被回呼的函式
   // 會在這裡就是已經刷完牙了
