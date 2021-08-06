@@ -34,14 +34,16 @@ console.log(`開始工作 at ${dt.toISOString()}`);
 // ---> 動作如果要接續著做，只能把下一個動作放在上一個動作的 callback
 //   --> callback hell
 
-let job1 = doWork("刷牙", 3000, false);
+let job1 = doWork("刷牙", 3000, true);
 console.log(job1);
 job1.then(
   function (resolve) {
     console.log("第 1 個函式被呼叫了", resolve);
+    console.log(job1);
   },
   function (reject) {
     console.log("第 2 個函式被呼叫了", reject);
+    console.log(job1);
   }
 );
 
