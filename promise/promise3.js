@@ -25,19 +25,32 @@ console.log(`開始工作 at ${dt.toISOString()}`);
 // ---> 動作如果要接續著做，只能把下一個動作放在上一個動作的 callback
 //   --> callback hell
 
+// chain 鏈
 let job1 = doWork("刷牙", 3000, true);
 job1
   .then((result) => {
+    // 表示刷牙成功了～
+
     console.log("第 1 個函式被呼叫了", result);
-    return 1;
+    // return 1;
     // 即使我們回傳的是數字，還是會包成 promise 物件
-    // Promise.resolve(1)
+
+    return doWork("吃早餐", 5000, true);
+    // doWork 是回傳 Promise 物件
   })
   .then((result) => {
+    // 吃早餐成功了
     console.log("第 2 個 then", result);
+    return doWork("寫功課", 3000, true);
+  })
+  .then((result) => {
+    // 寫功課成功
+    console.log("第 3 個 then", result);
   })
   .catch((error) => {
     // 捕捉錯誤
+    // 捕捉前面所有的 promise 物件的 reject
+    // 統一集中在這裡處理錯誤
     console.log("第 2 個函式被呼叫了", error);
   })
   .finally(() => {
