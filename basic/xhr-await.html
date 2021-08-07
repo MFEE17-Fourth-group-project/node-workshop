@@ -1,0 +1,46 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>XHR</title>
+  </head>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <body>
+    <button id="asyncBtn">非同步</button>
+    <button id="countBtn">測試按鈕</button>
+    <div id="count">0</div>
+    <div id="response">準備要顯示訊息</div>
+
+    <script>
+      var response = document.getElementById("response");
+      var asyncBtn = document.getElementById("asyncBtn");
+      asyncBtn.addEventListener("click", async function () {
+        response.innerHTML = "開始非同步請求";
+
+        response.innerHTML = await new Promise((resolve, reject) => {
+          var xhr = new XMLHttpRequest();
+          xhr.onload = function () {
+            if (this.status === 200) {
+              resolve(`非同步請求的response: ${this.responseText}`);
+            } else {
+              reject(`非同步請求錯誤: ${this.status}`);
+            }
+          };
+
+          xhr.onerror = () => {
+            reject(xhr.statusText);
+          };
+
+          // methed, url, async(default: true 非同步)
+          xhr.open("GET", "http://18.237.113.31:3000/", true);
+          xhr.send();
+        });
+      });
+
+      var countBtn = document.getElementById("countBtn");
+      var count = document.getElementById("count");
+      countBtn.addEventListener("click", function () {
+        count.innerHTML = parseInt(count.innerHTML, 10) + 1;
+      });
+    </script>
+  </body>
+</html>
