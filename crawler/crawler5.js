@@ -9,6 +9,7 @@ const mysql = require("mysql2/promise");
 require("dotenv").config();
 
 function queryStockPricePromise(stockCode) {
+  // moment().subtract(10, "days").format("YYYYMMDD"),
   return axios.get("https://www.twse.com.tw/exchangeReport/STOCK_DAY", {
     params: {
       response: "json",
@@ -81,8 +82,9 @@ async function doWork() {
     // mysql2 的問題: bulk insert 的支援度不太好
     const [insertResult] = await connection.query(
       "INSERT IGNORE INTO stock_price (stock_id, date, volume, amount, open_price, high_price, low_price, close_price, delta_price, transactions) VALUES ?",
-      [[...parsedData]]
+      [parsedData]
     );
+    // 原來不用[[...parsedData]]？
     console.log(insertResult);
   } catch (e) {
     console.error("***************");
