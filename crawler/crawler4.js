@@ -35,6 +35,7 @@ function readStockPromise() {
     });
   });
 }
+
 function queryStockPricePromise(stockCode) {
   return axios.get("https://www.twse.com.tw/exchangeReport/STOCK_DAY", {
     params: {

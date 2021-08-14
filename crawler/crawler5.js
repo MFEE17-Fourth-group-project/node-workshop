@@ -5,6 +5,7 @@ const moment = require("moment");
 const fs = require("fs/promises");
 // const mysql = require("mysql");
 const mysql = require("mysql2/promise");
+
 // 只需要 require
 require("dotenv").config();
 
@@ -30,6 +31,8 @@ async function doWork() {
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
     });
+
+    // await connection.connect();
 
     // 1. 讀 stock.txt 把股票代碼讀進來
     let stockCode = await fs.readFile("stock.txt", "utf8");
