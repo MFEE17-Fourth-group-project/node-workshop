@@ -11,6 +11,18 @@
     <div id="response">準備要顯示訊息</div>
 
     <script>
+      axios
+        .get("https://www.twse.com.tw/exchangeReport/STOCK_DAY", {
+          params: {
+            response: "json",
+            date: "20210811",
+            stockNo: 2330,
+          },
+        })
+        .then((result) => {
+          console.log(result);
+        });
+
       var response = document.getElementById("response");
       var asyncBtn = document.getElementById("asyncBtn");
       asyncBtn.addEventListener("click", async function () {
