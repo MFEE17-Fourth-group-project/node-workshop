@@ -1,12 +1,19 @@
 // db 版本 (自己製作 promise 物件)
 const axios = require("axios");
 const moment = require("moment");
+
 const fs = require("fs");
+// const { readFile } = require("fs");
+// readFile("stock.txt", "utf8", callback)
+
 const mysql = require("mysql");
 // 只需要 require
 require("dotenv").config();
 
+// 職責切割？？？？
 // 設定連線資料
+// A: 整個 connection 搬進 module
+// B: 只要搬設定物件就好
 const connection = mysql.createConnection({
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
