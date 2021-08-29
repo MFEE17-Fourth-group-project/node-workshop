@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 // nodejs 內建的物件
 const path = require("path");
+const connection = require("../utils/db");
 
 // 格式驗證 -> 後端絕對不可以相信來自前端的資料！
 const { body, validationResult } = require("express-validator");
@@ -25,12 +26,39 @@ const storage = multer.diskStorage({
   // 設定儲存的目的地
   destination: function (req, file, cb) {
     // "/public/uploads"
-    cb(null, path.join(__dirname, "../", "public", "uploads"));
+    cb(null, path.join(__dirname, "..", "public", "uploads"));
   },
   // 檔案命名
   filename: function (req, file, cb) {
-    console.log(file);
-    cb(null, file.originalname);
+    // console.log(file);
+    // {
+    //   fieldname: 'photo',
+    //   originalname: 'rabbit.jpeg',
+    //   encoding: '7bit',
+    //   mimetype: 'image/jpeg'
+    // }
+
+    // Q. 怎麼取新名字？
+    // 檔案的名稱跟放置方式, uuid 或是 datetime(風險: 同一時間有多人上傳)
+    // 不要重複、好管理
+    // uuid: https://www.npmjs.com/package/uuidv4
+    // datetime: Date.now()
+    // 為每個功能建立一個檔案夾
+    // 會員註冊.. member
+    // 評論..   comment
+    // 聯絡我們... contact
+    // member/11bf5b37-e0b8-42e0-8dcf-dc8c4aefc000.jpg
+    // 直接用功能名稱當作檔案 prefix
+    // member-11bf5b37-e0b8-42e0-8dcf-dc8c4aefc000.jpg
+    // 11bf5b37-e0b8-42e0-8dcf-dc8c4aefc000.jpg
+
+    // Q. 處理副檔名
+    // let filenames = "cde.abc.rabbit.jpg".split(".").pop();
+    // ["cde", "abc", "rabbit", "jpg"]
+    const ext = file.originalname.split(".").pop();
+
+    // cb(error, 新名字)
+    cb(null, `member-${Date.now()}.${ext}`);
   },
 });
 const uploader = multer({
@@ -50,7 +78,7 @@ const uploader = multer({
   limits: {
     // 1M: 1024*1024
     // 1K: 1024
-    fileSize: 1024,
+    fileSize: 1024 * 1024,
   },
 });
 
@@ -80,19 +108,35 @@ router.post(
         .status(400)
         .json({ field: error[0].param, message: error[0].msg });
     }
+
+    // 檢查帳號是否重複
+    let member = await connection.queryAsync(
+      "SELECT * FROM members WHERE email = ?;",
+      [req.body.email]
+    );
+    if (member.length > 0) {
+      return next({
+        // code: "330002",
+        status: 400,
+        message: "已經註冊過了",
+      });
+    }
+
     // 確認資料有拿到
     console.log(req.body);
     // 確認 file 有拿到(如果 multer 有成功的話)
     console.log(req.file);
+    let filename = req.file ? "/uploads/" + req.file.filename : "";
+    // http://localhost:3002/uploads/member-1630204166853.jpeg
 
     // 建立使用者、存進資料庫
-    // TODO: 密碼不可以是明文
-    // bcrypt.hash(明文, salt)
-    // let hashPassword = await bcrypt.hash(req.body.password, 10);
-    // let result = await connection.queryAsync(
-    //   "INSERT INTO members (email, password, name) VALUES (?);",
-    //   [[req.body.email, hashPassword, req.body.name]]
-    // );
+    // 密碼不可以是明文
+    // bcrypt.hash(明文, salt);
+    let hashPassword = await bcrypt.hash(req.body.password, 10);
+    let result = await connection.queryAsync(
+      "INSERT INTO members (email, password, name, photo) VALUES (?);",
+      [[req.body.email, hashPassword, req.body.name, filename]]
+    );
     res.json({});
   }
 );
