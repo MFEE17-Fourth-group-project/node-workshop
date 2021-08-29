@@ -4,6 +4,7 @@ const router = express.Router();
 // router 就是一個在 app 底下的小 app
 // 也是中間件(middleware)
 const connection = require("../utils/db");
+const { loginCheckMiddleware } = require("../middlewares/auth");
 
 // stock GET API
 // /stock
@@ -16,7 +17,7 @@ router.get("/", async (req, res, next) => {
 // B(後端分頁): 前端告訴後端我在第幾頁，後端給出該頁的資料
 // /stock/2330 ==> stockCode = 2330
 // /stock/2330?page=1
-router.get("/:stockCode", async (req, res, next) => {
+router.get("/:stockCode", loginCheckMiddleware, async (req, res, next) => {
   // req.params.stockCode
   // req.query.page
   let page = req.query.page || 1; // 目前在第幾頁，預設是第一頁

@@ -20,6 +20,7 @@ const bcrypt = require("bcrypt");
 
 // 為了處理 multipart/form-data 需要用到其他中間件
 const multer = require("multer");
+const { BADRESP } = require("dns");
 // 通常是為了上傳，所以需要告訴他上傳的檔案存在哪裡
 // 通常我們存在硬碟 => diskStorage
 const storage = multer.diskStorage({
@@ -140,5 +141,58 @@ router.post(
     res.json({});
   }
 );
+
+router.post("/login", async (req, res, next) => {
+  console.log(req.body);
+  // - 確認有沒有帳號 (email 是否存在)
+  //     - 如果沒有這個帳號，就回覆錯誤(400)
+  // 測試:
+  //  - 有註冊過的 email V
+  //  - 沒有註冊過的 email
+  let member = await connection.queryAsync(
+    "SELECT * FROM members WHERE email = ?;",
+    [req.body.email]
+  );
+  console.log(member);
+  if (member.length === 0) {
+    // member 陣列是空的 => 表示沒找到
+    return next({
+      // code: "330002",
+      status: 400,
+      message: "找不到帳號",
+    });
+  }
+  // 有找到，而且應該只會有一個（因為我們註冊的地方有檢查 email 有沒有重複）
+  member = member[0];
+  // - 密碼比對
+  // 測試案例
+  // - 密碼對的
+  // - 密碼錯的
+  let result = await bcrypt.compare(req.body.password, member.password);
+  if (!result) {
+    // - 不一致，回覆錯誤(400)
+    return next({
+      // code: "330002",
+      status: 400,
+      message: "密碼錯誤",
+    });
+  }
+  // - 有帳號且密碼正確
+  //     - 紀錄 session
+  //     - CSR: 回覆成功的訊息
+  let returnMember = {
+    id: member.id,
+    email: member.email,
+    name: member.name,
+    photo: member.photo,
+    isAdmin: false, // 理論上是資料庫要存，但我們假造一下作 demo
+  };
+  req.session.member = returnMember;
+  // 回覆給前端
+  res.json({
+    name: member.name,
+    photo: member.photo,
+  });
+});
 
 module.exports = router;

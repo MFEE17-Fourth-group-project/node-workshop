@@ -1,12 +1,32 @@
 const express = require("express");
 const connection = require("./utils/db");
 const path = require("path");
+require("dotenv").config();
 // 利用 express 建立了一個 express application
 let app = express();
 
 // 處理 cors 問題
+// 後端必須要開放、允許跨源請求
+// 這樣跨源的前端才不會被瀏覽器擋下來
 const cors = require("cors");
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:3000"],
+    // 跨源送 cookie
+    // 如果要把 credentials 設成 true, 那 origin 就不能是 *
+    // 不然太恐怖，誰都可以跨源送 cookie
+    credentials: true,
+  })
+);
+
+// 啟用 session 機制
+const expressSession = require("express-session");
+app.use(
+  expressSession({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+  })
+);
 
 // 使用這個中間件才可以讀到 body 的資料
 app.use(express.urlencoded({ extended: true }));
@@ -20,6 +40,7 @@ app.use(express.static(path.join(__dirname, "public")));
 // 因為 react 檔案夾裡，我們有放了 index.html
 // 這個中間件的設定又是在 / 路由前，所以首頁被這裡給攔截了
 // 把 index.html 讀出來，而且 response 回去了
+// --> 同源
 app.use(express.static(path.join(__dirname, "react")));
 
 // app.use 使用一個「中間件」
