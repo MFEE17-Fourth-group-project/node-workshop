@@ -3,3 +3,9 @@
 test.js
 
 node_modules
+
+build
+
+.env
+
+simple-express/react
