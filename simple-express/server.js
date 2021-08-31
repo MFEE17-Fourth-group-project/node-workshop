@@ -69,7 +69,7 @@ app.get("/", function (request, response, next) {
 });
 
 // app.METHOD
-app.get("/about", (req, res, next) => {
+app.get("/test", (req, res, next) => {
   // 因為已經 response，所以就終點了
   // res.send("About us A");
   // 如果不呼叫 response，那就還沒終點
@@ -91,7 +91,7 @@ app.get("/about", (req, res, next) => {
   }
 });
 
-app.get("/about", (req, res, next) => {
+app.get("/test", (req, res, next) => {
   // 這裡有終點
   res.send("About us B");
 });
@@ -99,16 +99,27 @@ app.get("/about", (req, res, next) => {
 let stockRouter = require("./routers/stock");
 // /stock
 // /stock/:stockCode
-app.use("/stock", stockRouter);
+app.use("/api/stock", stockRouter);
 
 // 引入 auth router 中間件
 let authRouter = require("./routers/auth");
 // 使用這個路由中間件
-app.use("/auth", authRouter);
+app.use("/api/auth", authRouter);
+
+// 引入 member router 中間件
+let memberRouter = require("./routers/member");
+// 使用這個路由中間件
+app.use("/api/member", memberRouter);
+
+// 放在所有 API 下方，如果不是 /api/xxx 的就會進入這裡
+// 讓前端可以處理 route
+// 加上這個後，負責處理 404 的中間件就沒有用了
+app.get("/*", (req, res, next) => {
+  res.sendFile(path.join(__dirname, "react", "index.html"));
+});
 
 // divide and conquer
 // 分而治之
-
 app.use((req, res, next) => {
   console.log("啊啊啊啊，都沒有符合的路由");
   next();
