@@ -1,6 +1,6 @@
 import { Link, NavLink, matchPath } from "react-router-dom";
 import Logo from "../img/fish.png";
-import { API_URL } from "../utils/config";
+import { API_URL, IMAGE_URL } from "../utils/config";
 import axios from "axios";
 import { useAuth } from "../context/auth";
 
@@ -54,7 +54,10 @@ const Navbar = () => {
         {member ? (
           <>
             Hi, {member.name}
-            <img src={`${API_URL}${member.photo}`} style={{ width: "80px" }} />
+            <img
+              src={`${IMAGE_URL}${member.photo}`}
+              style={{ width: "80px" }}
+            />
             <Link
               to="/about"
               onClick={handleLogout}

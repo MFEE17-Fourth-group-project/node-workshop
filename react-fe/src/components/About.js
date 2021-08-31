@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_URL } from "../utils/config";
+import { API_URL, IMAGE_URL } from "../utils/config";
 import { useAuth } from "../context/auth";
 
 const About = () => {
@@ -11,7 +11,7 @@ const About = () => {
       {member ? (
         <>
           <h3>Hi, {member.name}</h3>
-          <img src={`${API_URL}${member.photo}`} />
+          <img src={`${IMAGE_URL}${member.photo}`} />
         </>
       ) : (
         <h3>尚未登入</h3>
