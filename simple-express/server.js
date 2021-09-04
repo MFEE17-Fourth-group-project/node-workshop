@@ -19,6 +19,12 @@ app.use(
   })
 );
 
+// 告訴 express 我們用哪一種樣板語言
+// 樣板語言其實不止一種
+app.set("view engine", "pug");
+// 告訴 express 我們的樣板檔案放在哪裡
+app.set("views", path.join(__dirname, "views"));
+
 // 啟用 session 機制
 const expressSession = require("express-session");
 app.use(
@@ -62,6 +68,21 @@ app.use((req, res, next) => {
   // A
   console.log("我是第二個中間件");
   next();
+});
+
+app.get("/ssr", (req, res, next) => {
+  // 因為已經設定好要用的 view engine 是 pug
+  // 而且也設定好 pug 檔案在 views 檔案夾了
+  // 所以這裡只需要寫檔名就好
+  res.render("ssr");
+});
+
+app.get("/ssr/stock", async (req, res, next) => {
+  let result = await connection.queryAsync("SELECT * FROM stock");
+  // stock.pug
+  res.render("stock", {
+    stocks: result,
+  });
 });
 
 // HTTP Method: get, post, put, patch, delete
