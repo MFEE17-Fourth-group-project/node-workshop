@@ -42,6 +42,8 @@ app.use(express.static(path.join(__dirname, "public")));
 // 把 index.html 讀出來，而且 response 回去了
 // --> 同源
 app.use(express.static(path.join(__dirname, "react")));
+// static 使靜態資源: html, css, js, images,..
+// 透過 static 來部署 react 的話，他只幫忙到回覆 index.html
 
 // app.use 使用一個「中間件」
 // app.use(middleware))
@@ -66,6 +68,10 @@ app.use((req, res, next) => {
 // router 路由: 特殊的 middleware
 app.get("/", function (request, response, next) {
   response.send("Hello with nodemon");
+});
+
+app.get("/doc", (req, res, next) => {
+  res.send("I am DOC");
 });
 
 // app.METHOD
@@ -114,7 +120,11 @@ app.use("/api/member", memberRouter);
 // 放在所有 API 下方，如果不是 /api/xxx 的就會進入這裡
 // 讓前端可以處理 route
 // 加上這個後，負責處理 404 的中間件就沒有用了
+// 不管網址是 /about, /stock/2330,...不管是什麼
+// 只要前面沒有，我們就當作他不是 API
+// 那我們就回 react 的起點 index.html
 app.get("/*", (req, res, next) => {
+  console.log("準備回覆 react index.html");
   res.sendFile(path.join(__dirname, "react", "index.html"));
 });
 
