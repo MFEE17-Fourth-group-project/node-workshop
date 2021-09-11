@@ -1,17 +1,22 @@
+const jwt = require("jsonwebtoken");
+
 module.exports = {
   // authentication
   loginCheckMiddleware: function (req, res, next) {
     // 要登入後才可以看
-    if (!req.session.member) {
-      // session 裡面沒有 member --> 還沒登入
+    const rawToken = req.header("Authorization");
+    // "Bearer " + token
+    const token = rawToken.replace("Bearer ", "");
+    console.log("取得的 token", token);
+    try {
+      const data = jwt.verify(token, process.env.JWT_SECRET);
+      req.member = data;
+      next();
+    } catch (e) {
       return next({
         status: 401,
         message: "登入會員後，即可以享受更多專屬功能",
       });
-    } else {
-      // 如果 session 裡面是有 member 的
-      // 已經登入過的
-      next();
     }
   },
   // authorization 授權

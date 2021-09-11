@@ -142,6 +142,7 @@ router.post(
   }
 );
 
+const jwt = require("jsonwebtoken");
 router.post("/login", async (req, res, next) => {
   console.log(req.body);
   // - 確認有沒有帳號 (email 是否存在)
@@ -187,11 +188,20 @@ router.post("/login", async (req, res, next) => {
     photo: member.photo,
     isAdmin: false, // 理論上是資料庫要存，但我們假造一下作 demo
   };
-  req.session.member = returnMember;
+
+  // req.session.member = returnMember;
+  // 簽發一個 token
+  // 後端完全不儲存這個 token
+  const token = jwt.sign(returnMember, process.env.JWT_SECRET, {
+    expiresIn: "24h",
+  });
+
   // 回覆給前端
   res.json({
     name: member.name,
     photo: member.photo,
+    // 把 token 回覆給前端
+    token: token,
   });
 });
 

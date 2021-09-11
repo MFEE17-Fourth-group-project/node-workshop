@@ -6,6 +6,8 @@ import { Redirect } from "react-router-dom";
 
 const Login = () => {
   const { member, setMember } = useAuth();
+  const { token, setToken } = useAuth();
+
   const [email, setEmail] = useState("ashleylai58@gmail.com");
   const [password, setPassword] = useState("testtest");
 
@@ -14,13 +16,11 @@ const Login = () => {
     let result = await axios.post(
       `${API_URL}/auth/login`,
       // 設定可以跨源存取 cookie
-      { email, password },
-      {
-        withCredentials: true,
-      }
+      { email, password }
     );
     console.log(result);
     setMember(result.data);
+    setToken(result.data.token);
   };
 
   if (member !== null) {

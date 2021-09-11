@@ -8,7 +8,7 @@ const { loginCheckMiddleware } = require("../middlewares/auth");
 router.use(loginCheckMiddleware);
 
 router.get("/", (req, res, next) => {
-  res.json(req.session.member);
+  res.json(req.member);
 });
 
 // 整個 app （整個網站）
