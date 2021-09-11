@@ -200,4 +200,141 @@ router.get("/logout", (req, res, next) => {
   res.sendStatus(202);
 });
 
+const passport = require("passport");
+// 給 react 用
+const FacebookTokenStrategy = require("passport-facebook-token");
+passport.use(
+  new FacebookTokenStrategy(
+    {
+      clientID: process.env.FACEBOOK_ID,
+      clientSecret: process.env.FACEBOOK_SECRET,
+    },
+    async function (accessToken, refreshToken, profile, cb) {
+      // 觀察一下 profile 的長相，看看怎麼取得資料
+      console.log("Fb profile", profile);
+      let member = await connection.queryAsync(
+        "SELECT * FROM members WHERE email=?;",
+        [profile.emails[0].value]
+      );
+      let returnMember = null;
+      if (member.length > 0) {
+        // 已經註冊過
+        member = member[0];
+        returnMember = {
+          id: member.id,
+          email: member.email,
+          name: member.name,
+          photo: member.photo,
+        };
+      } else {
+        // 找不到，尚未註冊，註冊一下
+        let result = await connection.queryAsync(
+          "INSERT INTO members (email, password, name, photo) VALUES (?);",
+          [[profile.emails[0].value, "fb login", profile.name.givenName, null]]
+        );
+        // FB登入就不會有密碼，一開始 members 表設計的時候可以把密碼欄位設定成 nullable
+        // 因為我們設計的時候不允許 null，所以這裡就塞一個字串給他
+        console.log(result);
+        returnMember = {
+          id: result.insertId,
+          email: profile.emails[0].value,
+          name: profile.name.givenName,
+          photo: null,
+        };
+      }
+      cb(null, returnMember);
+    }
+  )
+);
+
+router.post(
+  "/facebook",
+  passport.authenticate("facebook-token", { session: false }),
+  (req, res, next) => {
+    if (!req.user) {
+      console.log("FB Login 登入失敗");
+      return res.json(401);
+    }
+    console.log("FB 登入成功");
+    // 一般登入，帳號密碼驗證後，應該要做的事
+    req.session.member = req.user;
+    // 回覆給前端
+    res.json({
+      name: req.user.name,
+      photo: req.user.photo,
+    });
+  }
+);
+
+const GoogleTokenStrategy = require("passport-google-token").Strategy;
+passport.use(
+  new GoogleTokenStrategy(
+    {
+      clientID: process.env.GOOGLE_ID,
+      clientSecret: process.env.GOOGLE_SECRET,
+    },
+    async function (accessToken, refreshToken, profile, cb) {
+      console.log("Google profile", profile);
+      // 以下其實跟 FB 登入一模一樣
+      let member = await connection.queryAsync(
+        "SELECT * FROM members WHERE email=?;",
+        [profile.emails[0].value]
+      );
+      let returnMember = null;
+      if (member.length > 0) {
+        // 已經註冊過
+        member = member[0];
+        returnMember = {
+          id: member.id,
+          email: member.email,
+          name: member.name,
+          photo: member.photo,
+        };
+      } else {
+        // 找不到，尚未註冊，註冊一下
+        let result = await connection.queryAsync(
+          "INSERT INTO members (email, password, name, photo) VALUES (?);",
+          [
+            [
+              profile.emails[0].value,
+              "google login",
+              profile.name.givenName,
+              null,
+            ],
+          ]
+        );
+        // FB登入就不會有密碼，一開始 members 表設計的時候可以把密碼欄位設定成 nullable
+        // 因為我們設計的時候不允許 null，所以這裡就塞一個字串給他
+        console.log(result);
+        returnMember = {
+          id: result.insertId,
+          email: profile.emails[0].value,
+          name: profile.name.givenName,
+          photo: null,
+        };
+      }
+      cb(null, returnMember);
+    }
+  )
+);
+
+router.post(
+  "/google",
+  passport.authenticate("google-token", { session: false }),
+  function (req, res, next) {
+    if (!req.user) {
+      console.log("Google Login 登入失敗");
+      return res.json(401);
+    }
+    console.log("Google 登入成功");
+    // 一般登入，帳號密碼驗證後，應該要做的事
+    req.session.member = req.user;
+    // 回覆給前端
+    res.json({
+      name: req.user.name,
+      photo: req.user.photo,
+    });
+  }
+);
+
 module.exports = router;

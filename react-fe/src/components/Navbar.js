@@ -3,6 +3,8 @@ import Logo from "../img/fish.png";
 import { API_URL, IMAGE_URL } from "../utils/config";
 import axios from "axios";
 import { useAuth } from "../context/auth";
+import FacebookLogin from "react-facebook-login";
+import GoogleLogin from "react-google-login";
 
 const Navbar = () => {
   const { member, setMember } = useAuth();
@@ -12,6 +14,41 @@ const Navbar = () => {
       withCredentials: true,
     });
     setMember(null);
+  };
+
+  // 在前端 FB 驗證完後之後，會呼叫的函式
+  let facebookResponse = async (response) => {
+    let result = await axios.post(
+      `${API_URL}/auth/facebook`,
+      {
+        access_token: response.accessToken,
+      },
+      {
+        withCredentials: true,
+      }
+    );
+    console.log(result);
+    // 跟一般登入後續處理是一樣的
+    setMember(result.data);
+  };
+
+  const googleResponse = async (response) => {
+    let result = await axios.post(
+      `${API_URL}/auth/google`,
+      {
+        access_token: response.accessToken,
+      },
+      {
+        withCredentials: true,
+      }
+    );
+    console.log(result);
+    // 跟一般登入後續處理是一樣的
+    setMember(result.data);
+  };
+
+  const onFailure = (error) => {
+    console.log(error);
   };
 
   return (
@@ -82,6 +119,17 @@ const Navbar = () => {
             >
               註冊
             </NavLink>
+            <FacebookLogin
+              appId={process.env.REACT_APP_FACEBOOK_ID}
+              autoLoad={false}
+              callback={facebookResponse}
+            />
+            <GoogleLogin
+              clientId={process.env.REACT_APP_GOOGLE_ID}
+              buttonText="Login"
+              onSuccess={googleResponse}
+              onFailure={onFailure}
+            />
           </>
         )}
       </div>
