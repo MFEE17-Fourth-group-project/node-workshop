@@ -2,7 +2,7 @@ import { useParams, useHistory } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { API_URL } from "../utils/config";
-
+import { useAuth } from "../context/auth";
 // 1. react 做了一個 config.js --> .env failed???
 // 2. 在用到設定的地方都 import config.js 的變數
 // 3. 後端分頁: 取得總筆數、計算總頁數、取得該頁資料、回覆 pagination 給前端
@@ -14,15 +14,16 @@ const StockDetails = () => {
   const { stockId, currentPage } = useParams();
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
+  const { token, setToken } = useAuth();
 
   // 分頁屬性
   // 紀錄我現在在第幾頁
   // 如果 currentPage 沒有設定，那就預設第一頁
   const [page, setPage] = useState(parseInt(currentPage, 10) || 1);
   // 偵測網址上的變化
-  useEffect(()=>{
-    setPage(parseInt(currentPage, 10) || 1);  
-  }, [currentPage])
+  useEffect(() => {
+    setPage(parseInt(currentPage, 10) || 1);
+  }, [currentPage]);
 
   // 總共有幾頁
   const [totalPage, setTotalPage] = useState(0);
@@ -57,42 +58,13 @@ const StockDetails = () => {
     return pages;
   };
 
-  // TODO: 瀏覽器上下頁的時候要更新資料
+  // 瀏覽器上下頁的時候要更新資料
   let history = useHistory();
-  //   const location = useLocation();
-  //   const [locationKeys, setLocationKeys] = useState([]);
-  //   useEffect(() => {
-  //     console.log("history replace");
-  //     history.replace(location.pathname, {
-  //       page: parseInt(currentPage, 10) || 1,
-  //     });
-  //   }, []);
-  //   useEffect(() => {
-  //     return history.listen((location) => {
-  //       console.log(history.action, history, currentPage);
-  //       if (history.action === "PUSH") {
-  //         setLocationKeys([location.key]);
-  //       }
 
-  //       if (history.action === "POP") {
-  //         setPage(location.state.page);
-  //         if (locationKeys[1] === location.key) {
-  //           setLocationKeys(([_, ...keys]) => keys);
-  //           // Handle forward event
-  //         } else {
-  //           setLocationKeys((keys) => [location.key, ...keys]);
-  //           // Handle back event
-  //         }
-  //       }
-  //     });
-  //   }, [locationKeys]);
   useEffect(() => {
     const getStockData = async () => {
       try {
-        let res = await axios.get(`${API_URL}/stock/${stockId}?page=${page}`, {
-          // 設定可以跨源送 cookie
-          withCredentials: true,
-        });
+        let res = await axios.get(`${API_URL}/stock/${stockId}?page=${page}`);
         setTotalPage(res.data.pagination.lastPage);
         setData(res.data.result);
         setError(null);

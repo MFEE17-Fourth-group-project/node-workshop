@@ -19,9 +19,12 @@ function App() {
     setMember(m);
   };
 
-  const setJWTToken = (t) => {
-    localStorage.setItem("token", t);
-    setToken(t);
+  const setJWTToken = (token) => {
+    localStorage.setItem("token", token);
+    setToken(token);
+    // 預設 axios 都會帶著 token
+    console.log("設定 axios header Authorization");
+    axios.defaults.headers.common["Authorization"] = "Bearer " + token;
   };
 
   useEffect(() => {
@@ -29,9 +32,7 @@ function App() {
     const token = localStorage.getItem("token");
     if (token) {
       console.log("讀出token", token);
-      setToken(token);
-      // 預設 axios 都會帶著 token
-      axios.defaults.headers.common["Authorization"] = "Bearer " + token;
+      setJWTToken(token);
     }
     // 每次重新整理或開啟頁面時，都去確認一下是否在已經登入的狀態。
     const getMember = async () => {
